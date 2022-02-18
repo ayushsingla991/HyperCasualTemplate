@@ -10,6 +10,9 @@ public class LevelManager : MonoBehaviour {
         instance = this;
 
         level = PlayerPrefs.GetInt(K.Prefs.Level, 0);
+        if (level == -1) {
+            level = PlayerPrefs.GetInt(K.Prefs.Level, 0);
+        }
     }
 
     void Start() {
