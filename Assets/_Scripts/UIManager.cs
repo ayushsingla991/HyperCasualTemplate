@@ -10,8 +10,14 @@ public class UIManager : MonoBehaviour {
 
     public static float ANIM_DUR = 0.4f;
 
+    [SerializeField] TextMeshProUGUI levelText;
+
     void Awake() {
         instance = this;
+    }
+
+    void Start() {
+        levelText.text = "LEVEL " + (LevelManager.Level() + 1);
     }
 
 }
