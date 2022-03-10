@@ -19,23 +19,27 @@ public class Sound : MonoBehaviour {
         if (soundOn) {
             instance.buttonClick.Play();
         }
+        Taptic.Light();
     }
 
     public static void Error() {
         if (soundOn) {
             instance.error.Play();
         }
+        Taptic.Heavy();
     }
 
     public static void Coin() {
         if (soundOn) {
             instance.coin.Play();
         }
+        Taptic.Warning();
     }
 
     public static void Win() {
         if (soundOn) {
             instance.win.Play();
         }
+        Taptic.Success();
     }
 }
