@@ -35,6 +35,7 @@ public class GameManager : MonoBehaviour {
 
     void Start() {
         gameState = GameState.Idle;
+        IDFA.RequestPopup();
     }
 
     void Update() {
