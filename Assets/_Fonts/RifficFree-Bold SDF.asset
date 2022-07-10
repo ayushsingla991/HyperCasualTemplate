@@ -3258,7 +3258,6 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    m_Ints: []
     m_Floats:
     - _Ambient: 0.5
     - _Bevel: 0.5
@@ -3290,7 +3289,7 @@ Material:
     - _Reflectivity: 10
     - _ScaleRatioA: 0.9
     - _ScaleRatioB: 0.73125
-    - _ScaleRatioC: 0.66477275
+    - _ScaleRatioC: 0.6647727
     - _ScaleX: 1
     - _ScaleY: 1
     - _ShaderFlags: 0
