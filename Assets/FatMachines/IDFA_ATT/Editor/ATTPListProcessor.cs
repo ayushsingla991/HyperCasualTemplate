@@ -1,8 +1,12 @@
 ﻿#if UNITY_IOS
+using FM;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using UnityEditor;
 using UnityEditor.Callbacks;
 using UnityEditor.iOS.Xcode;
-using System.IO;
+using UnityEngine;
 
 public class ATTPListProcessor {
     [PostProcessBuild]
@@ -14,16 +18,22 @@ public class ATTPListProcessor {
 
             PlistElementDict rootDict = plist.root;
 
-            if(IDFA.sdkAdIds.Count > 0){
+            TextAsset skAdIds = (TextAsset)Resources.Load("sdkadnetworks");
+            Dictionary<string, object> data = Json.Deserialize(skAdIds.text)as Dictionary<string, object>;
+
+            string desc = data["desc"] as string;
+            List<string> networks = (data["skadIds"] as List<object>).Select(x => x as string).ToList();
+
+            if (networks.Count > 0) {
                 PlistElementArray sdkIdArr = rootDict.CreateArray("SKAdNetworkItems");
-                for(int i=0; i<IDFA.sdkAdIds.Count; i++){
+                for (int i = 0; i < networks.Count; i++) {
                     PlistElementDict sdkId = sdkIdArr.AddDict();
-                    sdkId.SetString("SKAdNetworkIdentifier", IDFA.sdkAdIds[i]);
+                    sdkId.SetString("SKAdNetworkIdentifier", networks[i]);
                 }
             }
 
             // App Tracking Transparency Description
-            rootDict.SetString("NSUserTrackingUsageDescription", IDFA.idfaDesc);
+            rootDict.SetString("NSUserTrackingUsageDescription", desc);
 
             File.WriteAllText(plistPath, plist.WriteToString());
         }

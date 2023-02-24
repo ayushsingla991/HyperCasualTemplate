@@ -421,6 +421,7 @@ namespace ToonyColorsPro
 				clone.isLayerClone = true;
 				clone.Name = this.Name + "_" + materialLayer.uid;
 				clone.Type = this.Type;
+				clone.passBitmask = this.passBitmask;
 				clone.implementations = new List<Implementation>();
 				clone.SetDefaultImplementations(this.defaultImplementations);
 				clone.implementations.Clear();
@@ -777,7 +778,7 @@ namespace ToonyColorsPro
 				return output;
 			}
 			
-			public string PrintVariableSample_Internal(string inputSource, string outputSource, ProgramType program, string arguments, string prefix = null)
+			string PrintVariableSample_Internal(string inputSource, string outputSource, ProgramType program, string arguments, string prefix = null)
 			{
 				return PrintVariableSample(inputSource, outputSource, program, arguments, true, prefix);
 			}
