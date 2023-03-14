@@ -1,8 +1,10 @@
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CursorHand : MonoBehaviour {
 
+    [SerializeField] CanvasScaler canvasScaler;
     [SerializeField] RectTransform finger;
     Tween scaler;
 
@@ -18,12 +20,30 @@ public class CursorHand : MonoBehaviour {
                 scaler = finger.DOScale(new Vector3(0.8f, 0.8f, 1f), 0.1f);
             } else {
                 scaler = finger.DOScale(Vector3.one, 0.1f);
+                // Timer.Delay(0.5f, () => {
+                //     scaler = finger.DOScale(Vector3.zero, 0.1f);
+                //     Timer.Delay(1f, () => {
+                //         scaler = finger.DOScale(Vector3.one, 0.1f);
+                //     });
+                // });
             }
         });
     }
 
     void Update() {
-        finger.anchoredPosition = Input.mousePosition;
+        finger.anchoredPosition = UnscalePosition(Input.mousePosition);
+    }
+
+    Vector2 UnscalePosition(Vector2 vec) {
+        Vector2 referenceResolution = canvasScaler.referenceResolution;
+        Vector2 currentResolution = new Vector2(Screen.width, Screen.height);
+
+        float widthRatio = currentResolution.x / referenceResolution.x;
+        float heightRatio = currentResolution.y / referenceResolution.y;
+
+        float ratio = Mathf.Lerp(heightRatio, widthRatio, canvasScaler.matchWidthOrHeight);
+
+        return vec / ratio;
     }
 
 }

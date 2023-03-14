@@ -6,6 +6,8 @@ public class GameManager : MonoBehaviour {
 
     static GameManager instance;
 
+    bool GDPR;
+
     GameState _gameState;
     GameState gameState {
         get {
@@ -35,7 +37,24 @@ public class GameManager : MonoBehaviour {
 
     void Start() {
         gameState = GameState.Idle;
-        IDFA.RequestPopup();
+        GDPR = PlayerPrefs.GetInt(K.Prefs.GDPR, 0) == 1;
+        if (!GDPR) {
+            GDPRPopup.Show(_status => {
+#if UNITY_IOS
+                IDFA.RequestPopup(_status => {
+                    GDPR = _status == IDFA.Status.AUTHORIZED;
+                    FBAnalytics.GDPR(GDPR);
+                    Ads.GDPR(GDPR);
+                    PlayerPrefs.SetInt(K.Prefs.GDPR, GDPR ? 1 : 0);
+                });
+#elif UNITY_ANDROID
+                GDPR = _status;
+                FBAnalytics.GDPR(GDPR);
+                Ads.GDPR(GDPR);
+                PlayerPrefs.SetInt(K.Prefs.GDPR, GDPR ? 1 : 0);
+#endif
+            });
+        }
     }
 
     void Update() {
