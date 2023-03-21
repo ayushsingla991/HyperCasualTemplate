@@ -43,8 +43,6 @@ public class GameManager : MonoBehaviour {
 #if UNITY_IOS
                 IDFA.RequestPopup(_status => {
                     GDPR = _status == IDFA.Status.AUTHORIZED;
-                    FBAnalytics.GDPR(GDPR);
-                    Ads.GDPR(GDPR);
                     PlayerPrefs.SetInt(K.Prefs.GDPR, GDPR ? 1 : 0);
                 });
 #elif UNITY_ANDROID
