@@ -18,7 +18,7 @@
 	}
 
 6. Create a tar file by using this command.
-	tar czf com.unity.template.hypercasualui-1.1.1.tgz package
+	"tar czf com.unity.template.hypercasualui-1.1.1.tgz package"
 
 7. Paste com.unity.template.hypercasualui-1.1.1.tgz into "/Applications/Unity/2021.3.16f1/Unity.app/Contents/Resources/PackageManager/ProjectTemplates".
 
