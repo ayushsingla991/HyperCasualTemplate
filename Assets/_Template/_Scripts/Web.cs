@@ -88,8 +88,8 @@ namespace RobuxKit {
                 }
             } else {
                 Debug.LogError(url + "\n" + www.error);
-                Debug.Log("Headers: " + headers == null ? "null" : Json.Serialize(headers));
-                Debug.Log("Form Data: " + formData == null ? "null" : Json.Serialize(formData));
+                Debug.Log("Headers: " + headers == null ? "null" : MiniJSON.Serialize(headers));
+                Debug.Log("Form Data: " + formData == null ? "null" : MiniJSON.Serialize(formData));
                 if (_OnRequest != null) {
                     _OnRequest(www.downloadHandler.text, true);
                 }
@@ -140,8 +140,8 @@ namespace RobuxKit {
                 }
             } else {
                 Debug.LogError(url + "\n" + www.downloadHandler.text);
-                Debug.Log("Headers: " + headers == null ? "null" : Json.Serialize(headers));
-                Debug.Log("Form Data: " + formData == null ? "null" : Json.Serialize(formData));
+                Debug.Log("Headers: " + headers == null ? "null" : MiniJSON.Serialize(headers));
+                Debug.Log("Form Data: " + formData == null ? "null" : MiniJSON.Serialize(formData));
                 if (_OnRequest != null) {
                     _OnRequest(www.downloadHandler.text, true);
                 }
