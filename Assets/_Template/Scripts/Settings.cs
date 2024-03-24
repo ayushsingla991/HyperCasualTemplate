@@ -25,12 +25,14 @@ namespace FM.Template {
             Sound.soundOn = !Sound.soundOn;
             soundButton.sprite = Sound.soundOn ? soundOn : soundOff;
             PlayerPrefs.SetInt(K.Prefs.Sound, Sound.soundOn ? 1 : 0);
+            PlayerPrefs.Save();
         }
 
         public void ToggleTaptic() {
             Taptic.tapticOn = !Taptic.tapticOn;
             tapticButton.sprite = Taptic.tapticOn ? tapticOn : tapticOff;
             PlayerPrefs.SetInt(K.Prefs.Taptic, Taptic.tapticOn ? 1 : 0);
+            PlayerPrefs.Save();
         }
 
         public void Show() {

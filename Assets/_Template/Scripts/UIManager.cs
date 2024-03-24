@@ -15,7 +15,7 @@ namespace FM.Template {
         }
 
         void Start() {
-            levelText.text = "LEVEL " + (LevelManager.Level() + 1);
+            levelText.text = "LEVEL " + LevelManager.Level;
         }
 
     }

@@ -6,13 +6,18 @@ namespace FM.Template {
         static LevelManager instance;
 
         [SerializeField] int level;
+        public static int Level {
+            get {
+                return instance.level;
+            }
+        }
         int levelIndex;
 
         void Awake() {
             instance = this;
 
             if (level == -1) {
-                level = PlayerPrefs.GetInt(K.Prefs.Level, 0);
+                level = PlayerPrefs.GetInt(K.Prefs.Level, 1);
             }
         }
 
@@ -20,12 +25,9 @@ namespace FM.Template {
             GameManager.AddOnGameStateChanged(_gameState => {
                 if (_gameState == GameState.Win) {
                     PlayerPrefs.SetInt(K.Prefs.Level, level + 1);
+                    PlayerPrefs.Save();
                 }
             });
-        }
-
-        public static int Level() {
-            return instance.level;
         }
 
     }

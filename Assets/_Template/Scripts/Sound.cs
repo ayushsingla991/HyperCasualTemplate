@@ -10,11 +10,16 @@ namespace FM.Template {
         Dictionary<string, AudioSource> sounds;
 
         void Awake() {
+            if (instance != null) {
+                Destroy(gameObject);
+                return;
+            }
+            DontDestroyOnLoad(gameObject);
             instance = this;
 
             sounds = new Dictionary<string, AudioSource>();
 
-            AudioClip[] loadedSounds = Resources.LoadAll<AudioClip>("MetaKit/Sounds");
+            AudioClip[] loadedSounds = Resources.LoadAll<AudioClip>("Sounds");
             foreach (AudioClip sound in loadedSounds) {
                 GameObject go = new GameObject();
                 go.name = sound.name;

@@ -16,7 +16,7 @@ namespace FM.Template {
             DontDestroyOnLoad(gameObject);
             instance = this;
 
-            imagesDB = Json.Deserialize(PlayerPrefs.GetString(K.Prefs.Images, "{}"))as Dictionary<string, object>;
+            imagesDB = Json.Deserialize(FilePrefs.GetString(K.Prefs.Images, "{}"))as Dictionary<string, object>;
         }
 
         public static void SaveImage(string url, Texture img) {
@@ -36,11 +36,11 @@ namespace FM.Template {
             File.WriteAllBytes(filePath, bytes);
 
             if (instance.imagesDB.ContainsKey(url)) {
-                instance.imagesDB[url] = filePath;
+                instance.imagesDB[url] = imageName;
             } else {
-                instance.imagesDB.Add(url, filePath);
+                instance.imagesDB.Add(url, imageName);
             }
-            PlayerPrefs.SetString(K.Prefs.Images, Json.Serialize(instance.imagesDB));
+            FilePrefs.SetString(K.Prefs.Images, Json.Serialize(instance.imagesDB));
         }
 
         public static Texture2D GetImage(string url) {
@@ -50,7 +50,8 @@ namespace FM.Template {
             Texture2D tex = null;
             byte[] fileData;
 
-            string filePath = instance.imagesDB[url] as string;
+            string imageName = instance.imagesDB[url] as string;
+            string filePath = K.ImagesDir + imageName + ".png";
 
             if (File.Exists(filePath)) {
                 fileData = File.ReadAllBytes(filePath);
@@ -60,24 +61,12 @@ namespace FM.Template {
             return tex;
         }
 
-        public static void GetSprite(string url, System.Action<Sprite> _callback) {
-            Texture2D tex = GetImage(url);
-            if (tex != null) {
-                _callback?.Invoke(Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero));
-                return;
-            }
-            Web.Image(url, (_tex, _err) => {
-                if (!_err) {
-                    SaveImage(url, _tex);
-                    GetSprite(url, _callback);
-                } else {
-                    _callback?.Invoke(null);
-                }
-            });
+        public static Sprite ConvertToSprite(Texture _tex) {
+            Texture2D tex = (Texture2D)_tex;
+            return Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);
         }
 
-        public static Sprite GetSprite(Texture _tex) {
-            Texture2D tex = (Texture2D)_tex;
+        public static Sprite ConvertToSprite(Texture2D tex) {
             return Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);
         }
 
