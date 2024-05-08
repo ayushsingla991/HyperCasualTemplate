@@ -19,7 +19,7 @@ namespace FM.Template {
         }
 
         void Update() {
-            if (GameManager.GetGameState() != GameState.Start) {
+            if (GameManager.GameState != GameState.Start) {
                 return;
             }
             if (Input.GetMouseButtonDown(0) || (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began) || (Input.GetKeyDown(KeyCode.Space))) {

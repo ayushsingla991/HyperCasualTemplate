@@ -8,17 +8,17 @@ namespace FM.Template {
         static GameManager instance;
 
         GameState _gameState;
-        GameState gameState {
+        public static GameState GameState {
             get {
-                return _gameState;
+                return instance._gameState;
             }
-            set {
-                if (_gameState != value) {
-                    if (OnGameStateChanged != null) {
-                        OnGameStateChanged(value);
+            private set {
+                if (instance._gameState != value) {
+                    if (instance.OnGameStateChanged != null) {
+                        instance.OnGameStateChanged(value);
                     }
                 }
-                _gameState = value;
+                instance._gameState = value;
             }
         }
 
@@ -35,7 +35,7 @@ namespace FM.Template {
         }
 
         void Start() {
-            gameState = GameState.Idle;
+            GameState = GameState.Idle;
         }
 
         void Update() {
@@ -44,28 +44,24 @@ namespace FM.Template {
             }
         }
 
-        public void StartTutorial() {
-            gameState = GameState.Start;
-        }
-
         public void Restart() {
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
 
+        public static void StartGame() {
+            GameState = GameState.Start;
+        }
+
         public static void GameOver() {
-            instance.gameState = GameState.Lose;
+            GameState = GameState.Lose;
             Taptic.Failure();
         }
 
         public static void GameWon() {
             Sound.PlaySound("win");
             Taptic.Success();
-            instance.gameState = GameState.Win;
+            GameState = GameState.Win;
             Instantiate(instance.confettiPrefab, instance.confettiPoint.position, instance.confettiPoint.rotation, instance.confettiPoint);
-        }
-
-        public static GameState GetGameState() {
-            return instance.gameState;
         }
 
         public static void AddOnGameStateChanged(System.Action<GameState> _OnGameStateChanged) {
