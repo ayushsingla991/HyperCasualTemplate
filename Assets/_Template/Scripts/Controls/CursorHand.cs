@@ -5,6 +5,8 @@ using UnityEngine.UI;
 namespace FM.Template {
     public class CursorHand : MonoBehaviour {
 
+        [SerializeField] Canvas canvas;
+        [SerializeField] RectTransform canvasRect;
         [SerializeField] CanvasScaler canvasScaler;
         [SerializeField] RectTransform finger;
         Tween scaler;
@@ -26,7 +28,17 @@ namespace FM.Template {
         }
 
         void Update() {
-            finger.anchoredPosition = UnscalePosition(Input.mousePosition);
+            Vector2 mousePos = Input.mousePosition;
+
+            // Convert the screen coordinates to local coordinates of the canvas
+            RectTransform canvasRectTransform = canvasRect;
+            Vector2 localPoint;
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRectTransform, mousePos, null, out localPoint);
+
+            // Update the position of the finger UI element
+            finger.localPosition = localPoint;
+
+            // finger.anchoredPosition = UnscalePosition(Input.mousePosition);
         }
 
         Vector2 UnscalePosition(Vector2 vec) {

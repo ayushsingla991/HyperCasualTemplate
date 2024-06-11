@@ -212,6 +212,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d8fae360817d741998998e9ef5081ca7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  canvas: {fileID: 673944199}
+  canvasRect: {fileID: 673944200}
   canvasScaler: {fileID: 673944198}
   finger: {fileID: 1167186064}
 --- !u!1 &125570326
