@@ -37,8 +37,8 @@
 		float4 tex2D_triplanar(sampler2D samp, float4 tiling_offset, float3 worldPos, float3 worldNormal)
 		{
 			half4 sample_y = ( tex2D(samp, worldPos.xz * tiling_offset.xy + tiling_offset.zw).rgba );
-			fixed4 sample_x = ( tex2D(samp, worldPos.zy * tiling_offset.xy + tiling_offset.zw).rgba );
-			fixed4 sample_z = ( tex2D(samp, worldPos.xy * tiling_offset.xy + tiling_offset.zw).rgba );
+			half4 sample_x = ( tex2D(samp, worldPos.zy * tiling_offset.xy + tiling_offset.zw).rgba );
+			half4 sample_z = ( tex2D(samp, worldPos.xy * tiling_offset.xy + tiling_offset.zw).rgba );
 			
 			// blending
 			half3 blendWeights = pow(abs(worldNormal), _TriplanarSamplingStrength.xyz / _TriplanarSamplingStrength.w);
@@ -52,8 +52,8 @@
 		half4 tex2D_triplanar_noTile(sampler2D samp, float4 tiling_offset, float3 worldPos, float3 worldNormal)
 		{
 			half4 sample_y = ( tex2D_noTile(samp, worldPos.xz * tiling_offset.xy + tiling_offset.zw).rgba );
-			fixed4 sample_x = ( tex2D_noTile(samp, worldPos.zy * tiling_offset.xy + tiling_offset.zw).rgba );
-			fixed4 sample_z = ( tex2D_noTile(samp, worldPos.xy * tiling_offset.xy + tiling_offset.zw).rgba );
+			half4 sample_x = ( tex2D_noTile(samp, worldPos.zy * tiling_offset.xy + tiling_offset.zw).rgba );
+			half4 sample_z = ( tex2D_noTile(samp, worldPos.xy * tiling_offset.xy + tiling_offset.zw).rgba );
 			
 			// blending
 			half3 blendWeights = pow(abs(worldNormal), _TriplanarSamplingStrength.xyz / _TriplanarSamplingStrength.w);
@@ -71,8 +71,8 @@
 		float4 tex2D_triplanar(Texture2D tex, SamplerState samp, float4 tiling_offset, float3 worldPos, float3 worldNormal)
 		{
 			half4 sample_y = ( tex.Sample(samp, worldPos.xz * tiling_offset.xy + tiling_offset.zw).rgba );
-			fixed4 sample_x = ( tex.Sample(samp, worldPos.zy * tiling_offset.xy + tiling_offset.zw).rgba );
-			fixed4 sample_z = ( tex.Sample(samp, worldPos.xy * tiling_offset.xy + tiling_offset.zw).rgba );
+			half4 sample_x = ( tex.Sample(samp, worldPos.zy * tiling_offset.xy + tiling_offset.zw).rgba );
+			half4 sample_z = ( tex.Sample(samp, worldPos.xy * tiling_offset.xy + tiling_offset.zw).rgba );
 			
 			// blending
 			half3 blendWeights = pow(abs(worldNormal), _TriplanarSamplingStrength.xyz / _TriplanarSamplingStrength.w);
@@ -87,8 +87,8 @@
 		half4 tex2D_triplanar_noTile(Texture2D tex, SamplerState samp, float4 tiling_offset, float3 worldPos, float3 worldNormal)
 		{
 			half4 sample_y = ( tex2D_noTile(tex, samp, worldPos.xz * tiling_offset.xy + tiling_offset.zw).rgba );
-			fixed4 sample_x = ( tex2D_noTile(tex, samp, worldPos.zy * tiling_offset.xy + tiling_offset.zw).rgba );
-			fixed4 sample_z = ( tex2D_noTile(tex, samp, worldPos.xy * tiling_offset.xy + tiling_offset.zw).rgba );
+			half4 sample_x = ( tex2D_noTile(tex, samp, worldPos.zy * tiling_offset.xy + tiling_offset.zw).rgba );
+			half4 sample_z = ( tex2D_noTile(tex, samp, worldPos.xy * tiling_offset.xy + tiling_offset.zw).rgba );
 			
 			// blending
 			half3 blendWeights = pow(abs(worldNormal), _TriplanarSamplingStrength.xyz / _TriplanarSamplingStrength.w);
@@ -107,8 +107,8 @@
 		float4 tex2Dlod_triplanar(sampler2D samp, float4 tiling_offset, float lod, float3 worldPos, float3 worldNormal)
 		{
 			half4 sample_y = ( tex2Dlod(samp, float4(worldPos.xz * tiling_offset.xy + tiling_offset.zw, 0, lod)).rgba );
-			fixed4 sample_x = ( tex2Dlod(samp, float4(worldPos.zy * tiling_offset.xy + tiling_offset.zw, 0, lod)).rgba );
-			fixed4 sample_z = ( tex2Dlod(samp, float4(worldPos.xy * tiling_offset.xy + tiling_offset.zw, 0, lod)).rgba );
+			half4 sample_x = ( tex2Dlod(samp, float4(worldPos.zy * tiling_offset.xy + tiling_offset.zw, 0, lod)).rgba );
+			half4 sample_z = ( tex2Dlod(samp, float4(worldPos.xy * tiling_offset.xy + tiling_offset.zw, 0, lod)).rgba );
 			
 			//blending
 			half3 blendWeights = pow(abs(worldNormal), _TriplanarSamplingStrength.xyz / _TriplanarSamplingStrength.w);
@@ -122,8 +122,8 @@
 		half4 tex2Dlod_triplanar_noTile(sampler2D samp, float4 tiling_offset, float lod, float3 worldPos, float3 worldNormal)
 		{
 			half4 sample_y = ( tex2Dlod_noTile(samp, worldPos.xz * tiling_offset.xy + tiling_offset.zw).rgba );
-			fixed4 sample_x = ( tex2Dlod_noTile(samp, worldPos.zy * tiling_offset.xy + tiling_offset.zw).rgba );
-			fixed4 sample_z = ( tex2Dlod_noTile(samp, worldPos.xy * tiling_offset.xy + tiling_offset.zw).rgba );
+			half4 sample_x = ( tex2Dlod_noTile(samp, worldPos.zy * tiling_offset.xy + tiling_offset.zw).rgba );
+			half4 sample_z = ( tex2Dlod_noTile(samp, worldPos.xy * tiling_offset.xy + tiling_offset.zw).rgba );
 			
 			//blending
 			half3 blendWeights = pow(abs(worldNormal), _TriplanarSamplingStrength.xyz / _TriplanarSamplingStrength.w);
@@ -141,8 +141,8 @@
 		float4 tex2Dlod_triplanar(Texture2D tex, SamplerState samp, float4 tiling_offset, float lod, float3 worldPos, float3 worldNormal)
 		{
 			half4 sample_y = ( tex.SampleLevel(samp, worldPos.xz * tiling_offset.xy + tiling_offset.zw, lod).rgba );
-			fixed4 sample_x = ( tex.SampleLevel(samp, worldPos.zy * tiling_offset.xy + tiling_offset.zw, lod).rgba );
-			fixed4 sample_z = ( tex.SampleLevel(samp, worldPos.xy * tiling_offset.xy + tiling_offset.zw, lod).rgba );
+			half4 sample_x = ( tex.SampleLevel(samp, worldPos.zy * tiling_offset.xy + tiling_offset.zw, lod).rgba );
+			half4 sample_z = ( tex.SampleLevel(samp, worldPos.xy * tiling_offset.xy + tiling_offset.zw, lod).rgba );
 			
 			// blending
 			half3 blendWeights = pow(abs(worldNormal), _TriplanarSamplingStrength.xyz / _TriplanarSamplingStrength.w);
@@ -157,8 +157,8 @@
 		half4 tex2Dlod_triplanar_noTile(Texture2D tex, SamplerState samp, float4 tiling_offset, float3 worldPos, float3 worldNormal)
 		{
 			half4 sample_y = ( tex2Dlod_noTile(tex, samp, float4(worldPos.xz * tiling_offset.xy + tiling_offset.zw, 0, lod)).rgba );
-			fixed4 sample_x = ( tex2Dlod_noTile(tex, samp, float4(worldPos.zy * tiling_offset.xy + tiling_offset.zw, 0, lod)).rgba );
-			fixed4 sample_z = ( tex2Dlod_noTile(tex, samp, float4(worldPos.xy * tiling_offset.xy + tiling_offset.zw, 0, lod)).rgba );
+			half4 sample_x = ( tex2Dlod_noTile(tex, samp, float4(worldPos.zy * tiling_offset.xy + tiling_offset.zw, 0, lod)).rgba );
+			half4 sample_z = ( tex2Dlod_noTile(tex, samp, float4(worldPos.xy * tiling_offset.xy + tiling_offset.zw, 0, lod)).rgba );
 			
 			// blending
 			half3 blendWeights = pow(abs(worldNormal), _TriplanarSamplingStrength.xyz / _TriplanarSamplingStrength.w);

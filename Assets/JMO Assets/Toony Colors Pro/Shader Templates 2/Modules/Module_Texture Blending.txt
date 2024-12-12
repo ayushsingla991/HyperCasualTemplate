@@ -238,7 +238,7 @@ warning	msgType=info					needs=TEXTURE_BLENDING					lbl="The <b>Material Layer</
 ///
 #END
 
-#FRAGMENT:BUMP(float4 normalMap)
+#FRAGMENT:BUMP
 /// IF TEXTURE_BLENDING && TEXBLEND_BUMP && BUMP
 
 		// Texture Blending: normal maps

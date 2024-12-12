@@ -1,0 +1,14 @@
+{
+    "Device": [
+        {
+            "DeviceName": "iphone",
+            "Width": 1320,
+            "Height": 2868
+        },
+        {
+            "DeviceName": "iPad",
+            "Width": 2064,
+            "Height": 2752
+        }
+    ]
+}

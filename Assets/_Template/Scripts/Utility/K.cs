@@ -14,6 +14,7 @@ namespace FM.Template {
             public static string Sound = "Sound"; // PlayerPrefs
             public static string Taptic = "Taptic"; // PlayerPrefs
             public static string Images = "Images"; // FilePrefs
+            public static string Coins = "Coins"; // FilePrefs
         }
 
     }

@@ -1,0 +1,9 @@
+{
+    "green": "00BF00",
+    "red": "FD2366",
+    "purple": "A303FC",
+    "yellow": "FDC100",
+    "blue": "00ABFF",
+    "orange": "FD6802",
+    "dark_blue": "006ED9"
+}

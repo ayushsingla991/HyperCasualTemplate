@@ -185,6 +185,7 @@ sngl		lbl="Enable Meta Pass"					kw=ENABLE_META_PASS				tt="Enable meta pass: it
 sngl		lbl="Enable Light Layers (URP 12+)"		kw=ENABLE_LIGHT_LAYERS
 sngl		lbl="Enable Rendering Layers (URP 14+)"	kw=ENABLE_RENDERING_LAYERS
 sngl		lbl="Enable Forward+ (URP 14+)"			kw=ENABLE_FORWARD_PLUS
+sngl		lbl="Enable DOTS Instancing (URP 14+)"	kw=ENABLE_DOTS_INSTANCING
 space	space=4
 subh	lbl="GPU Instancing Options"
 flag	lbl="Assume Uniform Scaling"	kw=assumeuniformscaling		block="pragma_gpu_instancing"		tt="Use this to instruct Unity to assume that all the instances have uniform scalings (the same scale for all X, Y and Z axes)."
@@ -686,6 +687,9 @@ Shader "@%SHADER_NAME%@"
 		#define TCP2_TEX2D_SAMPLE_LOD(tex, samplertex, coord, lod)	SAMPLE_TEXTURE2D_LOD(tex, sampler##samplertex, coord, lod)
 ///
 
+/// IF ENABLE_DOTS_INSTANCING
+		#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
+///
 		#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 		#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 /// IF ENABLE_DECALS
@@ -731,6 +735,19 @@ Shader "@%SHADER_NAME%@"
 			[[MODULE:VARIABLES]]
 			[[INJECTION_POINT:Variables/Inside CBuffer]]
 		CBUFFER_END
+
+/// IF ENABLE_DOTS_INSTANCING
+		#if defined(UNITY_DOTS_INSTANCING_ENABLED)
+
+		[[VARIABLES_DOTS_INSTANCING_INCLUDE]]
+
+		#endif
+///
+
+		#if defined(UNITY_INSTANCING_ENABLED) || defined(UNITY_DOTS_INSTANCING_ENABLED)
+			#define unity_ObjectToWorld UNITY_MATRIX_M
+			#define unity_WorldToObject UNITY_MATRIX_I_M
+		#endif
 
 		[[VARIABLES_GPU_INSTANCING_INCLUDE]]
 
@@ -1421,6 +1438,7 @@ Shader "@%SHADER_NAME%@"
 /// IF ENABLE_LIGHTMAP
 			#pragma multi_compile _ DIRLIGHTMAP_COMBINED
 			#pragma multi_compile _ LIGHTMAP_ON
+			#pragma multi_compile _ DYNAMICLIGHTMAP_ON
 ///
 /// IF FOG
 			#pragma multi_compile_fog
@@ -1483,7 +1501,12 @@ Shader "@%SHADER_NAME%@"
 				float4 tangent      : TANGENT;
 ///
 /// IF ENABLE_LIGHTMAP && !TERRAIN_SHADER
-				float2 uvLM         : TEXCOORD1;
+				#if defined(LIGHTMAP_ON)
+				float2 texcoord1    : TEXCOORD1;
+				#endif
+				#if defined(DYNAMICLIGHTMAP_ON)
+				float2 texcoord2    : TEXCOORD2;
+				#endif
 ///
 /// IF USE_VERTEX_COLORS_VERT
 				half4 vertexColor   : COLOR;
@@ -1505,7 +1528,20 @@ Shader "@%SHADER_NAME%@"
 			#ifdef _ADDITIONAL_LIGHTS_VERTEX
 				half3 vertexLights : TEXCOORD2;
 			#endif
+/// IF ENABLE_LIGHTMAP
+			#if defined(LIGHTMAP_ON) && defined(DYNAMICLIGHTMAP_ON)
+				float4 lightmapUV  : TEXCOORD3;
+				#define staticLightmapUV lightmapUV.xy
+				#define dynamicLightmapUV lightmapUV.zw
+			#elif defined(LIGHTMAP_ON) || defined(DYNAMICLIGHTMAP_ON)
+				float2 lightmapUV  : TEXCOORD3;
+				#define staticLightmapUV lightmapUV.xy
+				#define dynamicLightmapUV lightmapUV.xy
+			#endif
+				[[INPUT_STRUCT_SEMANTICS:4]]
+/// ELSE
 				[[INPUT_STRUCT_SEMANTICS:3]]
+///
 #INPUT_VARIABLES
 /// IF USE_OBJECT_POSITION_FRAGMENT
 				float3 objPos;
@@ -1527,9 +1563,6 @@ Shader "@%SHADER_NAME%@"
 ///
 /// IF FOG
 				float fogFactor;
-///
-/// IF ENABLE_LIGHTMAP
-				float2 uvLM;
 ///
 /// IF UV_SINE_ANIMATION_FRAGMENT
 				float2 sinUvAnimVertexPos;
@@ -1620,9 +1653,16 @@ Shader "@%SHADER_NAME%@"
 				[[SAMPLE_SHADER_PROPERTIES]]
 /// IF ENABLE_LIGHTMAP
 	/// IF TERRAIN_SHADER
-				output.[[INPUT_VALUE:uvLM]] = input.texcoord0.xy * unity_LightmapST.xy + unity_LightmapST.zw;
+				#if defined(LIGHTMAP_ON)
+					output.staticLightmapUV = input.texcoord0.xy * unity_LightmapST.xy + unity_LightmapST.zw;
+				#endif
 	/// ELSE
-				output.[[INPUT_VALUE:uvLM]] = input.uvLM.xy * unity_LightmapST.xy + unity_LightmapST.zw;
+				#if defined(LIGHTMAP_ON)
+					output.staticLightmapUV = input.texcoord1.xy * unity_LightmapST.xy + unity_LightmapST.zw;
+				#endif
+				#if defined(DYNAMICLIGHTMAP_ON)
+					output.dynamicLightmapUV = input.texcoord2.xy * unity_DynamicLightmapST.xy + unity_DynamicLightmapST.zw;
+				#endif
 	///
 ///
 
@@ -1708,7 +1748,7 @@ Shader "@%SHADER_NAME%@"
 				output.vertexColor = input.vertexColor;
 ///
 /// IF USE_VIEW_DIRECTION_VERTEX
-				half3 viewDirWS = SafeNormalize(GetCameraPositionWS() - vertexInput.positionWS);
+				half3 viewDirWS = GetWorldSpaceNormalizeViewDir(vertexInput.positionWS);
 ///
 #ENABLE_IMPL: float ndv, lbl = "Special/N·V (Vertex)", help = "The dot product between the normal and view direction.", toggles = "USE_NDV_VERTEX", options = "(Use Min/Max Properties,USE_NDV_MIN_MAX_VERT,config),(Invert,USE_NDV_INVERT_VERT)"
 /// IF USE_NDV_VERTEX
@@ -1803,7 +1843,7 @@ Shader "@%SHADER_NAME%@"
 				normalWS.xyz *= (vFace < 0) ? -1.0 : 1.0;
 ///
 /// IF USE_VIEW_DIRECTION_FRAGMENT
-				half3 viewDirWS = SafeNormalize(GetCameraPositionWS() - positionWS);
+				half3 viewDirWS = GetWorldSpaceNormalizeViewDir(positionWS);
 ///
 /// IF USE_TANGENT_FRAGMENT
 				half3 tangentWS = input.[[INPUT_VALUE:tangent]];
@@ -1971,7 +2011,7 @@ Shader "@%SHADER_NAME%@"
 
 			#if defined(URP_10_OR_NEWER)
 				#if defined(SHADOWS_SHADOWMASK) && defined(LIGHTMAP_ON)
-					half4 shadowMask = SAMPLE_SHADOWMASK(input.[[INPUT_VALUE:uvLM]]);
+					half4 shadowMask = SAMPLE_SHADOWMASK(input.staticLightmapUV);
 				#elif !defined (LIGHTMAP_ON)
 					half4 shadowMask = unity_ProbesOcclusion;
 				#else
@@ -2005,9 +2045,17 @@ Shader "@%SHADER_NAME%@"
 
 				// ambient or lightmap
 /// IF ENABLE_LIGHTMAP
-			#ifdef LIGHTMAP_ON
-				// Normal is required in case Directional lightmaps are baked
-				half3 bakedGI = SampleLightmap(input.[[INPUT_VALUE:uvLM]], normalWS);
+			#if defined(LIGHTMAP_ON) && defined(DYNAMICLIGHTMAP_ON)
+				// Static & Dynamic Lightmap
+				half3 bakedGI = SampleLightmap(input.staticLightmapUV, input.dynamicLightmapUV, normalWS);
+				MixRealtimeAndBakedGI(mainLight, normalWS, bakedGI, half4(0, 0, 0, 0));
+			#elif defined(LIGHTMAP_ON)
+				// Static Lightmap
+				half3 bakedGI = SampleLightmap(input.staticLightmapUV, 0, normalWS);
+				MixRealtimeAndBakedGI(mainLight, normalWS, bakedGI, half4(0, 0, 0, 0));
+			#elif defined(DYNAMICLIGHTMAP_ON)
+				// Dynamic Lightmap
+				half3 bakedGI = SampleLightmap(0, input.dynamicLightmapUV, normalWS);
 				MixRealtimeAndBakedGI(mainLight, normalWS, bakedGI, half4(0, 0, 0, 0));
 			#else
 ///
@@ -2170,7 +2218,7 @@ Shader "@%SHADER_NAME%@"
 				half3 accumulatedColors = ramp * lightColor.rgb;
 ///
 
-				[[MODULE:FRAGMENT:Specular(emission, normalWS, tangentWS, lightDir, viewDirWS, ndl, ndvRaw, atten)]]
+				[[MODULE:FRAGMENT:Specular(emission, normalWS, tangentWS, lightDir, viewDirWS, ndl, ndvRaw, atten, mainLight)]]
 				[[MODULE:FRAGMENT:Subsurface Scattering:LWRP_MAIN_LIGHT(color, normalWS, viewDirWS, albedo, lightColor, lightDir, atten)]]
 
 				// Additional lights loop
@@ -2216,7 +2264,7 @@ Shader "@%SHADER_NAME%@"
 							#if defined(_LIGHT_LAYERS)
 								half3 lightDir = half3(0, 1, 0);
 								half3 lightColor = half3(0, 0, 0);
-								if (IsMatchingLightLayer(mainLight.layerMask, meshRenderingLayers))
+								if (IsMatchingLightLayer(light.layerMask, meshRenderingLayers))
 								{
 									lightColor = light.color.rgb;
 									lightDir = light.direction;
@@ -2280,7 +2328,7 @@ Shader "@%SHADER_NAME%@"
 			///
 		///
 
-							[[MODULE:FRAGMENT:Specular(emission, normalWS, tangentWS, lightDir, viewDirWS, ndl, ndvRaw, atten)]]
+							[[MODULE:FRAGMENT:Specular(emission, normalWS, tangentWS, lightDir, viewDirWS, ndl, ndvRaw, atten, light)]]
 							[[MODULE:FRAGMENT:Subsurface Scattering:LWRP_ADDITIONAL_LIGHT(color, normalWS, viewDirWS, albedo, lightColor, lightDir, atten)]]
 							[[MODULE:FRAGMENT:Rim Lighting:ADDITIONAL_LIGHT(ndvRaw, emission, normalWS, viewDirWS, input.screenPosition, ndl, atten, input)]]
 						}
@@ -2331,7 +2379,7 @@ Shader "@%SHADER_NAME%@"
 					#if defined(_LIGHT_LAYERS)
 						half3 lightDir = half3(0, 1, 0);
 						half3 lightColor = half3(0, 0, 0);
-						if (IsMatchingLightLayer(mainLight.layerMask, meshRenderingLayers))
+						if (IsMatchingLightLayer(light.layerMask, meshRenderingLayers))
 						{
 							lightColor = light.color.rgb;
 							lightDir = light.direction;
@@ -2395,7 +2443,7 @@ Shader "@%SHADER_NAME%@"
 		///
 	///
 
-					[[MODULE:FRAGMENT:Specular(emission, normalWS, tangentWS, lightDir, viewDirWS, ndl, ndvRaw, atten)]]
+					[[MODULE:FRAGMENT:Specular(emission, normalWS, tangentWS, lightDir, viewDirWS, ndl, ndvRaw, atten, light)]]
 					[[MODULE:FRAGMENT:Subsurface Scattering:LWRP_ADDITIONAL_LIGHT(color, normalWS, viewDirWS, albedo, lightColor, lightDir, atten)]]
 					[[MODULE:FRAGMENT:Rim Lighting:ADDITIONAL_LIGHT(ndvRaw, emission, normalWS, viewDirWS, input.screenPosition, ndl, atten, input)]]
 #=========================================================================
@@ -2568,6 +2616,7 @@ Shader "@%SHADER_NAME%@"
 	#start_not_empty_block
 			[[MODULE:SHADER_FEATURES_BLOCK:Wind]]
 			[[MODULE:SHADER_FEATURES_BLOCK:Dissolve]]
+			[[MODULE:SHADER_FEATURES_BLOCK:Vertex Displacement]]
 	#end_not_empty_block
 	#end_not_empty
 
@@ -2733,7 +2782,7 @@ Shader "@%SHADER_NAME%@"
 				VertexPositionInputs vertexInput = GetVertexPositionInputs(input.vertex.xyz);
 ///
 /// IF USE_VIEW_DIRECTION_VERTEX
-				half3 viewDirWS = SafeNormalize(GetCameraPositionWS() - vertexInput.positionWS);
+				half3 viewDirWS = GetWorldSpaceNormalizeViewDir(vertexInput.positionWS);
 ///
 /// IF USE_NDV_VERTEX
 				half ndv = abs(dot(viewDirWS, worldNormalUv));
@@ -2818,7 +2867,7 @@ Shader "@%SHADER_NAME%@"
 				[[SAMPLE_SHADER_PROPERTIES]]
 
 /// IF USE_VIEW_DIRECTION_FRAGMENT
-				half3 viewDirWS = SafeNormalize(GetCameraPositionWS() - positionWS);
+				half3 viewDirWS = GetWorldSpaceNormalizeViewDir(positionWS);
 ///
 /// IF USE_NDV_FRAGMENT
 #		/// IF USE_NDV_IGNORE_NORMAL_MAP
@@ -2947,6 +2996,7 @@ Shader "@%SHADER_NAME%@"
 	#start_not_empty_block
 			[[MODULE:SHADER_FEATURES_BLOCK:Wind]]
 			[[MODULE:SHADER_FEATURES_BLOCK:Dissolve]]
+			[[MODULE:SHADER_FEATURES_BLOCK:Vertex Displacement]]
 	#end_not_empty_block
 	#end_not_empty
 
@@ -3005,6 +3055,7 @@ Shader "@%SHADER_NAME%@"
 	#start_not_empty_block
 			[[MODULE:SHADER_FEATURES_BLOCK:Wind]]
 			[[MODULE:SHADER_FEATURES_BLOCK:Dissolve]]
+			[[MODULE:SHADER_FEATURES_BLOCK:Vertex Displacement]]
 	#end_not_empty_block
 	#end_not_empty
 

@@ -737,7 +737,7 @@ namespace ToonyColorsPro
 									{
 										if (currentBlock.isReplaceBlock && parsingSearchString)
 										{
-											currentBlock.searchString += currentBlock.searchString == "" ? line : "\n" + line;
+											currentBlock.searchString += currentBlock.searchString == "" ? line : Environment.NewLine + line;
 										}
 										else
 										{
@@ -1200,8 +1200,8 @@ namespace ToonyColorsPro
 								list.Insert(1, "// Replaced through Code Injection:");
 								list.Add("//================================");
 								
-								string replaceLines = string.Join("\n", list);
-								stringBuilder.Replace(ip.block.searchString, string.Join("\n", replaceLines));
+								string replaceLines = string.Join(Environment.NewLine, list);
+								stringBuilder = stringBuilder.Replace(ip.block.searchString, string.Join("\n", replaceLines));
 							}
 						}
 					}

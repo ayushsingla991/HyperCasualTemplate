@@ -1,6 +1,6 @@
 Toony Colors Pro, version 2.9
-2023/02/06
-© 2023 - Jean Moreno
+2024/11/14
+© 2024 - Jean Moreno
 =============================
 
 QUICK START
@@ -37,6 +37,73 @@ UPDATE NOTES
 ------------
 
 See full and formatted changelog here: https://jeanmoreno.com/unity/toonycolorspro/doc/changelog
+
+2.9.14
+#### Fixed
+- Fixed compilation error when URP is not installed in the project (for real this time)
+
+2.9.13
+#### Fixed
+- Fixed compilation error when URP is not installed in the project
+
+2.9.12
+#### Added
+- [Shader Generator 2] Added an option to convert vertex colors to linear space
+- [Shader Generator 2] Added a menu option to update all selected shaders with the Shader Generator 2 (useful if you manually changed the template, or updated TCP2 and want to apply all latest fixes in your generated shaders)
+- URP version of the Material Layers demo scene
+
+#### Modified
+- Demo Scenes reorganization: each render pipeline-specific scene has been included in a corresponding package
+- Cat Demo Scene (BIRP): converted all shaders so that they use the Shader Generator 2 (they used the legacy SG1 previously)
+
+#### Fixed
+- Fixed "Planar Reflections" with Unity 6 (Built-in and URP)
+- "Planar Reflections" blurring size is now resolution-independent
+- [Shader Generator 2] Fixed console error when copying a shader that is at the root of the "Assets" folder
+- [Shader Generator 2] Only calculate contrast and/or noise modifiers once for Material Layers
+
+2.9.11
+#### Fixed
+- [Hybrid Shader 2] (URP) Fixed compilation error when using Outline with lighting while light layers are disabled
+- [Hybrid Shader 2] (URP) Fixed cascaded shadow map not working when using URP 10 or lower
+- [Hybrid Shader 2][Shader Generator 2] (URP) Fixed view direction calculation when camera is orthographic which caused incorrect visuals for view-dependent features (e.g. specular reflections)
+- [Shader Generator 2] Fixed compilation error when "Terrain" shader is enabled and no layer has texcoord0 set as UV
+- [Shader Generator 2] Fixed compilation error when "Terrain" and "Lightmaps" are enabled, but lightmap isn't enabled in the current Scene
+
+2.9.10
+#### Fixed
+- [Shader Generator 2] Fixed error when updating a shader generated with a version prior to TCP2 2.9.7
+- [Shader Generator 2] Fixed compilation errors when Vertex UV is used outside the XY channels as general data
+
+2.9.9
+#### Added
+- [Shader Generator 2] (URP) Added DOTS instancing support: enable it in the OPTIONS section of the FEATURES tab, and then enable "DOTS Instanced" on the properties you want in the SHADER PROPERTIES tab
+
+2.9.8
+#### Added
+- [Hybrid Shader 2] (URP)(BIRP) Added/fixed support for Realtime Global Illumination (Enlighten) for both render pipelines
+- [Shader Generator 2] (URP) Added support for Realtime Global Illumination (Enlighten)
+#### Fixed
+- [Shader Generator 2] Fixed Shader Generator 2 broken with URP template in last update
+
+2.9.7
+#### Added
+- [Shader Generator 2] Added the ability to change the default blending of "Material Layers", which use linear interpolation (lerp). Custom blending formulas are also possible, see the documentation.
+- [Hybrid Shader 2] Added DOTS instancing support for the "Hybrid Shader 2" (needs to be explicitly enabled in the shader inspector)
+#### Fixed
+- [Shader Generator 2] (URP) Fixed a specular bug with "Visible over shadows" option enabled, where specular could pop out when going out of an additional light's volume
+- [Shader Generator 2] Prevent NaNs on some platforms when using "Anisotropic Specular" feature
+- [Shader Generator 2] Code Injection: fixed parsing line breaks for the replacement blocks (multi-line replacements)
+- [Hybrid Shader 2][Shader Generator 2] Fixed possible precision issues with specular on mobile or low-precision platforms
+
+2.9.6
+#### Fixed
+- [Shader Generator 2] Fixed "Vertex Displacement" in the shadow, outline and depth passes when "Make Optional" is enabled
+- [Shader Generator 2] Fixed compilation when using "Texture Blending" with normal map blending enabled
+- [Shader Generator 2] Fixed Light Layers support for additional lights
+- [Hybrid Shader 2] Fixed SSAO issues with URP 12+
+- [Hybrid Shader 2] Fixed "Fade" transparency mode not affected by color or texture alpha
+- [Hybrid Shader 2] (URP) Fixed compilation error when using Forward+ with SSAO
 
 2.9.5
 #### Fixed

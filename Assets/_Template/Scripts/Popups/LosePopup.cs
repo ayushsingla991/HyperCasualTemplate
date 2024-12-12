@@ -9,6 +9,9 @@ namespace FM.Template {
         static LosePopup instance;
 
         [SerializeField] TextMeshProUGUI coinsText;
+        [SerializeField] TextMeshProUGUI failedText;
+
+        [SerializeField] float delay;
 
         void Awake() {
             instance = this;
@@ -17,7 +20,9 @@ namespace FM.Template {
         void Start() {
             GameManager.AddOnGameStateChanged(_gameState => {
                 if (_gameState == GameState.Lose) {
-                    ShowPopup();
+                    Timer.Delay(delay, () => {
+                        ShowPopup();
+                    });
                 }
             });
         }
@@ -25,6 +30,7 @@ namespace FM.Template {
         public static void ShowPopup(int coins = 0) {
             instance.Show();
             instance.coinsText.text = "" + coins;
+            instance.failedText.text = "LEVEL " + LevelManager.Level + "\nFAILED!";
         }
     }
 }

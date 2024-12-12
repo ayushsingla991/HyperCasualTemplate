@@ -119,6 +119,7 @@ namespace ToonyColorsPro
 				public string Label { get { return implementation.Label; } }
 				public bool HasErrors { get { return implementation.HasErrors; } }
 				public bool IsGpuInstanced { get { return implementation.IsGpuInstanced; } }
+				public bool IsDotsInstanced { get { return implementation.IsDotsInstanced; } }
 
 				internal OptionFeatures[] NeededFeatures() { return implementation.NeededFeatures(); }
 

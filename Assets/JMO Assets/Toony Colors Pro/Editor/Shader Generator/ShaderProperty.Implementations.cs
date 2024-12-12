@@ -46,6 +46,7 @@ namespace ToonyColorsPro
 				[Serialization.SerializeAs("op")] public Operator @operator = Operator.Multiply;      //How this implementation is calculated compared to the previous one
 				[Serialization.SerializeAs("lbl"), ExcludeFromCopy] public string Label = "Property Label";
 				[Serialization.SerializeAs("gpu_inst")] public bool IsGpuInstanced = false;
+				[Serialization.SerializeAs("dots_inst")] public bool IsDotsInstanced = false;
 				[Serialization.SerializeAs("locked"), ExcludeFromCopy] public bool IsLocked = false;
 				[Serialization.SerializeAs("impl_index"), ExcludeFromCopy] public int DefaultImplementationIndex = -1; // if >= 0, then this is a default implementation
 
@@ -176,6 +177,7 @@ namespace ToonyColorsPro
 					this.@operator = from.@operator;
 					this.Label = from.Label;
 					this.IsGpuInstanced = from.IsGpuInstanced;
+					this.IsDotsInstanced = from.IsDotsInstanced;
 
 					var from_mp = from as Imp_MaterialProperty;
 					var this_mp = this as Imp_MaterialProperty;
@@ -514,9 +516,28 @@ namespace ToonyColorsPro
 					{
 						bool highlighted = !IsDefaultImplementation ? IsGpuInstanced : IsGpuInstanced != GetDefaultImplementation<Imp_MaterialProperty>().IsGpuInstanced;
 						SGUILayout.InlineLabel("GPU Instanced", "Tag this property as a possible variant for GPU instancing", highlighted);
+						EditorGUI.BeginChangeCheck();
 						IsGpuInstanced = SGUILayout.Toggle(IsGpuInstanced);
+						if (EditorGUI.EndChangeCheck())
+							if (IsDotsInstanced && IsGpuInstanced)
+								IsDotsInstanced = false;
 					}
 					EndHorizontal();
+
+					if (ShaderGenerator2.IsURP)
+					{
+						BeginHorizontal();
+						{
+							bool highlighted = !IsDefaultImplementation ? IsDotsInstanced : IsDotsInstanced != GetDefaultImplementation<Imp_MaterialProperty>().IsDotsInstanced;
+							SGUILayout.InlineLabel("DOTS Instanced", "Tag this property as a supporting DOTS instancing", highlighted);
+							EditorGUI.BeginChangeCheck();
+							IsDotsInstanced = SGUILayout.Toggle(IsDotsInstanced);
+							if (EditorGUI.EndChangeCheck())
+								if (IsDotsInstanced && IsGpuInstanced)
+									IsGpuInstanced = false;
+						}
+						EndHorizontal();
+					}
 
 					BeginHorizontal();
 					GUILayout.Space(2);
@@ -2810,6 +2831,7 @@ namespace ToonyColorsPro
 				[Serialization.SerializeAs("cc")] public int ChannelsCount = 3;
 				[Serialization.SerializeAs("chan")] public string Channels = "RGB";
 				string DefaultChannels = "RGB";
+				[Serialization.SerializeAs("linear")] public bool ConvertToLinearSpace = false;
 
 				public Imp_VertexColor(ShaderProperty shaderProperty) : base(shaderProperty)
 				{
@@ -2853,7 +2875,15 @@ namespace ToonyColorsPro
 				{
 					var hideChannels = TryGetArgument("hide_channels", arguments);
 					var channels = string.IsNullOrEmpty(hideChannels) ? "." + Channels.ToLowerInvariant() : "";
-					return string.Format("{0}.vertexColor{1}", inputSource, channels);
+					var vertexColorsVariable = $"{inputSource}.vertexColor";
+					if (ConvertToLinearSpace)
+					{
+						if (ShaderGenerator2.IsURP)
+							vertexColorsVariable = $"SRGBToLinear({vertexColorsVariable})";
+						else
+							vertexColorsVariable = $"half4(GammaToLinearSpace({vertexColorsVariable}.rgb), {vertexColorsVariable}.a)";
+					}
+					return string.Format($"{vertexColorsVariable}{channels}");
 				}
 
 				internal override void NewLineGUI(bool usedByCustomCode)
@@ -2881,6 +2911,14 @@ namespace ToonyColorsPro
 							else
 								Channels = SGUILayout.RGBASwizzle(Channels, ChannelsCount);
 						}
+					}
+					EndHorizontal();
+
+					BeginHorizontal();
+					{
+						bool highlighted = !IsDefaultImplementation ? ConvertToLinearSpace : ConvertToLinearSpace != GetDefaultImplementation<Imp_VertexColor>().ConvertToLinearSpace;
+						SGUILayout.InlineLabel(TCP2_GUI.TempContent("Convert to Linear Space", "Convert the vertex colors to linear color space if the project is in linear color space."), highlighted);
+						ConvertToLinearSpace = SGUILayout.Toggle(ConvertToLinearSpace);
 					}
 					EndHorizontal();
 				}
@@ -2938,8 +2976,7 @@ namespace ToonyColorsPro
 
 				internal override string PrintVariableVertex(string inputSource, string outputSource, string arguments)
 				{
-					string coord = ShaderGenerator2.VariablesManager.GetVariable("texcoord" + TexcoordChannel);
-					return string.Format("{0}.{1}.xy", inputSource, string.IsNullOrEmpty(coord) ? "texcoord" + TexcoordChannel : coord);
+					return $"{inputSource}.{"texcoord" + TexcoordChannel}.{Channels.ToLowerInvariant()}";
 				}
 
 				internal override string PrintVariableFragment(string inputSource, string outputSource, string arguments)
@@ -2952,7 +2989,7 @@ namespace ToonyColorsPro
 					}
 					else
 					{
-						return string.Format("{0}.{1}.xy", inputSource, coord);
+						return $"{inputSource}.{coord}.{Channels.ToLowerInvariant()}";
 					}
 
 					//var hideChannels = TryGetArgument("hide_channels", arguments);
@@ -4178,7 +4215,7 @@ namespace ToonyColorsPro
 					}
 				}
 
-				// Used to show the properties in the Features tab directy
+				// Used to show the properties in the Features tab directly
 				internal void EmbeddedGUI(float indent = 0, float labelWidth = 130)
 				{
 					// Embedded through the "mult_fs" UIFeature
@@ -4195,7 +4232,7 @@ namespace ToonyColorsPro
 					GUILayout.BeginHorizontal();
 					{
 						GUILayout.Space(indent);
-						bool highlighted = EnumValue != GetDefaultImplementation<Imp_Enum>().EnumValue;
+						bool highlighted = !IsDefaultImplementation || EnumValue != GetDefaultImplementation<Imp_Enum>().EnumValue;
 						TCP2_GUI.SubHeader(IsConstant() ? "Value" : "Default Value", null, highlighted, labelWidth + 4);
 						GUILayout.Space(-4); // hack to align the highlighted part with the regular UIFeatures
 						EnumValue = EditorGUILayout.Popup(EnumValue, enumDisplayNames);

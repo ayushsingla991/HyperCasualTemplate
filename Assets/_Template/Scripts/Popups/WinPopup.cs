@@ -8,8 +8,12 @@ namespace FM.Template {
 
         static WinPopup instance;
 
-        [SerializeField] Transform[] stars;
+        [SerializeField] Transform coinImg;
+        [SerializeField] Transform coinHeaderImg;
         [SerializeField] TextMeshProUGUI coinsText;
+        [SerializeField] TextMeshProUGUI completedText;
+
+        [SerializeField] float delay;
 
         void Awake() {
             instance = this;
@@ -18,33 +22,29 @@ namespace FM.Template {
         void Start() {
             GameManager.AddOnGameStateChanged(_gameState => {
                 if (_gameState == GameState.Win) {
-                    ShowPopup();
+                    Timer.Delay(delay, () => {
+                        ShowPopup(CoinsManager.CoinsToAdd);
+                    });
                 }
             });
         }
 
-        IEnumerator StarScale(int starsCount, System.Action _OnComplete = null) {
-            int count = 0;
-            foreach (Transform star in stars) {
-                star.DOScale(Vector3.one, UIManager.ANIM_DUR / 2f).SetEase(Ease.OutBack);
-                count++;
-                if (count == starsCount) {
-                    break;
-                }
-                yield return new WaitForSeconds(UIManager.ANIM_DUR / 2f);
-            }
-            _OnComplete?.Invoke();
-        }
-
-        public static void ShowPopup(int stars = 3, int coins = 10) {
+        public static void ShowPopup(int coins = 10) {
             instance.Show();
-            foreach (Transform star in instance.stars) {
-                star.localScale = Vector3.zero;
-            }
-            if (instance.stars.Length > 0) {
-                instance.StartCoroutine(instance.StarScale(stars));
-            }
+            instance.completedText.text = "LEVEL " + LevelManager.Level + "\nCOMPLETED!";
             instance.coinsText.text = "" + coins;
         }
+
+        public void Continue() {
+            if (CoinsManager.CoinsToAdd > 0) {
+                CoinAnimator.Animate(coinImg, coinHeaderImg, () => {
+                    CoinsManager.Add(CoinsManager.CoinsToAdd);
+                    Timer.Delay(0.5f, () => {
+                        GameManager.Restart();
+                    });
+                });
+            }
+        }
+
     }
 }

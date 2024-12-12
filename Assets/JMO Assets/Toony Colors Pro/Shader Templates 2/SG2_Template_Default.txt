@@ -1012,6 +1012,7 @@ Shader "@%SHADER_NAME%@"
 	#start_not_empty_block
 			[[MODULE:SHADER_FEATURES_BLOCK:Wind]]
 			[[MODULE:SHADER_FEATURES_BLOCK:Dissolve]]
+			[[MODULE:SHADER_FEATURES_BLOCK:Vertex Displacement]]
 	#end_not_empty_block
 	#end_not_empty
 
@@ -1746,7 +1747,7 @@ Shader "@%SHADER_NAME%@"
 			#if defined(_NORMALMAP)
 	///
 			[[MODULE:FRAGMENT:Normal Mapping:BUMP_SAMPLE()]]
-			[[MODULE:FRAGMENT:Texture Blending:BUMP(normalMap)]]
+			[[MODULE:FRAGMENT:Texture Blending:BUMP()]]
 			[[MODULE:FRAGMENT:Normal Mapping:UNPACK_BUMP_SURFACE(output.Normal, output.normalTS)]]
 
 	/// IF BUMP_SHADER_FEATURE
@@ -2019,7 +2020,7 @@ Shader "@%SHADER_NAME%@"
 			#endif
 ///
 
-			[[MODULE:FRAGMENT:Specular(color, normal, surface.input.tangent, lightDir, viewDir, ndl, surface.ndvRaw, atten)]]
+			[[MODULE:FRAGMENT:Specular(color, normal, surface.input.tangent, lightDir, viewDir, ndl, surface.ndvRaw, atten, dummyLight)]]
 			[[MODULE:FRAGMENT:Rim Lighting(surface.ndvRaw, color, color, normal, viewDir, surface.input.screenPosition, ndl, atten, surface.input)]]
 	#if_not_empty
 			// ForwardBase pass only
@@ -2259,6 +2260,7 @@ Shader "@%SHADER_NAME%@"
 			#pragma multi_compile_instancing
 			[[GPU_INSTANCING_OPTIONS]]
 			[[MODULE:SHADER_FEATURES_BLOCK:Dissolve]]
+			[[MODULE:SHADER_FEATURES_BLOCK:Vertex Displacement]]
 			ENDCG
 		}
 ///
@@ -2339,6 +2341,7 @@ Shader "@%SHADER_NAME%@"
 		#end_not_empty
 
 			[[MODULE:SHADER_FEATURES_BLOCK:Dissolve]]
+			[[MODULE:SHADER_FEATURES_BLOCK:Vertex Displacement]]
 
 			[[INJECTION_POINT:Shadow Caster Pass/Pragma]]
 

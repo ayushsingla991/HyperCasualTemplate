@@ -6,7 +6,7 @@
 #FEATURES
 mult	lbl="Specular"				kw=Off|,Blinn-Phong|SPEC_LEGACY,PBR Blinn-Phong|SPEC_PBR_BLINNPHONG,GGX|SPEC_PBR_GGX,Anisotropic|SPECULAR_ANISOTROPIC,Hair Anisotropic|SPECULAR_ANISOTROPIC_HAIR		toggles=SPECULAR	help="featuresreference/lighting/specular"
 mult	lbl="Stylized Specular"		kw=Off|,Cartoon|SPECULAR_TOON,Bands|SPECULAR_TOON_BAND,Texture Ramp|SPECULAR_RAMP	needsOr=SPEC_LEGACY,SPECULAR_ANISOTROPIC	indent		tt="Specular stylization"
-mult	lbl="Anisotropic Specular Basis"	kw=Tangent|,Bitangent|SPECULAR_ANISOTROPIC_HAIR_BITANGENT						needs=SPECULAR_ANISOTROPIC_HAIR				indent		tt="Which vector to use as a basis for the anisotropic specular calculation. Depending on the base mesh, one or the other will give better results."
+mult	lbl="Anisotropic Specular Basis"	kw=Tangent|,Bitangent|SPECULAR_ANISOTROPIC_HAIR_BITANGENT					needs=SPECULAR_ANISOTROPIC_HAIR				indent		tt="Which vector to use as a basis for the anisotropic specular calculation. Depending on the base mesh, one or the other will give better results."
 sngl	lbl="Visible over Shadows"	kw=SPECULAR_NO_ATTEN																needs=SPECULAR								indent		tt="Shadows don't affect specular visibility"	
 sngl	lbl="Make Optional"			kw=SPECULAR_SHADER_FEATURE															needs=SPECULAR								indent		tt="Will make specular optional in the material inspector, using a shader keyword"
 #END
@@ -139,15 +139,16 @@ sngl	lbl="Make Optional"			kw=SPECULAR_SHADER_FEATURE															needs=SPECUL
 //================================================================
 
 #FUNCTIONS
-/// IF SPEC_PBR_GGX || SPEC_PBR_BLINNPHONG
+/// IF SPECULAR
 
-		//Specular help functions (from UnityStandardBRDF.cginc)
-		inline half3 SpecSafeNormalize(half3 inVec)
-		{
-			half dp3 = max(0.001f, dot(inVec, inVec));
-			return inVec * rsqrt(dp3);
-		}
-	/// IF SPEC_PBR_BLINNPHONG
+	//Specular help functions (from UnityStandardBRDF.cginc)
+	inline float3 SpecSafeNormalize(float3 inVec)
+	{
+		half dp3 = max(0.001f, dot(inVec, inVec));
+		return inVec * rsqrt(dp3);
+	}
+///
+/// IF SPEC_PBR_BLINNPHONG
 
 		//PBR Blinn-Phong
 		#define TCP2_PI 3.14159265359
@@ -166,7 +167,8 @@ sngl	lbl="Make Optional"			kw=SPECULAR_SHADER_FEATURE															needs=SPECUL
 			half specTerm = pow (NdotH, n);
 			return specTerm * normTerm;
 		}
-	/// ELIF SPEC_PBR_GGX
+///
+/// IF SPEC_PBR_GGX
 
 		//GGX
 		#define TCP2_PI			3.14159265359
@@ -182,24 +184,16 @@ sngl	lbl="Make Optional"			kw=SPECULAR_SHADER_FEATURE															needs=SPECUL
 			half d = (NdotH * a2 - NdotH) * NdotH + 1.0f;
 			return TCP2_INV_PI * a2 / (d * d + TCP2_EPSILON);
 		}
-	///
 ///
 /// IF SPECULAR_ANISOTROPIC_HAIR
 
-		//Specular help functions (from UnityStandardBRDF.cginc)
-		inline half3 SpecSafeNormalize(half3 inVec)
-		{
-			half dp3 = max(0.001f, dot(inVec, inVec));
-			return inVec * rsqrt(dp3);
-		}
 		// Hair Anisotropic Specular
-		inline half HairStrandSpecular(float3 tangent, float3 viewDir, float3 lightDir, float exponent)
+		inline half HairStrandSpecular(float3 tangent, half3 halfDir, float exponent)
 		{
-			half3 halfDir = SpecSafeNormalize(lightDir + viewDir);
 			half tdh = dot(tangent, halfDir);
 			half sth = sqrt(1.0 - tdh * tdh);
 			half dirAtten = smoothstep(-1.0, 0.0, tdh);
-			return dirAtten * pow(sth, exponent);
+			return dirAtten * pow(1e-4h + sth, exponent);
 		}
 		inline float3 HairShiftTangent(float3 tangent, float3 normal, float shift)
 		{
@@ -220,24 +214,24 @@ sngl	lbl="Make Optional"			kw=SPECULAR_SHADER_FEATURE															needs=SPECUL
 
 //================================================================
 
-#LIGHTING(float4 color, float3 normal, float3 tangent, float3 lightDir, float3 viewDir, float ndl, float ndv, float atten)
+#LIGHTING(float4 color, float3 normal, float3 tangent, float3 lightDir, float3 viewDir, float ndl, float ndv, float atten, struct light)
 /// IF SPECULAR
+		half3 halfDir = SpecSafeNormalize(float3(lightDir) + float3(viewDir));
 
 	/// IF SPECULAR_SHADER_FEATURE
 		#if defined(TCP2_SPECULAR)
 	///
 	/// IF SPECULAR_ANISOTROPIC
 		//Anisotropic Specular
-		half3 h = normalize(lightDir + viewDir);
-		float ndh = max(0, dot (normal, h));
+		float ndh = max(0, dot (normal, halfDir));
 		/// IF LWRP
 #HACK: bitangent is already calculated in LWRP
 		half3 binorm = bitangentWS.xyz;
 		/// ELSE
 		half3 binorm = cross(normal, tangent);
 		///
-		float aX = dot(h, tangent) / [[VALUE:Anisotropic Spread]];
-		float aY = dot(h, binorm) / [[VALUE:Specular Smoothness]];
+		float aX = dot(halfDir, tangent) / [[VALUE:Anisotropic Spread]];
+		float aY = dot(halfDir, binorm) / [[VALUE:Specular Smoothness]];
 		float specAniso = sqrt(max(0.0, ndl / ndv)) * exp(-2.0 * (aX * aX + aY * aY) / (1.0 + ndh));
 		/// IF SPECULAR_RAMP
 		float3 spec = tex2D(_SpecularRamp, (specAniso*specAniso).xx).rgb;
@@ -265,21 +259,19 @@ sngl	lbl="Make Optional"			kw=SPECULAR_SHADER_FEATURE															needs=SPECUL
 		///
 		half exp1 = [[VALUE:Anisotropic Exponent 1]];
 		half exp2 = [[VALUE:Anisotropic Exponent 2]];
-		half spec1 = HairStrandSpecular(anisoTangent1, viewDir, lightDir, exp1);
-		half spec2 = HairStrandSpecular(anisoTangent2, viewDir, lightDir, exp2);
+		half spec1 = HairStrandSpecular(anisoTangent1, halfDir, exp1);
+		half spec2 = HairStrandSpecular(anisoTangent2, halfDir, exp2);
 		half3 specColor1 = spec1 * [[VALUE:Specular Color 1]];
 		half3 specColor2 = spec2 * [[VALUE:Specular Color 2]];
 		specColor1 *= ndl;
 		specColor2 *= ndl;
 	/// ELIF SPEC_PBR_BLINNPHONG
 		//Specular: PBR Blinn-Phong
-		half3 halfDir = SpecSafeNormalize(lightDir + viewDir);
 		half roughness = [[VALUE:Specular Roughness PBR]]*[[VALUE:Specular Roughness PBR]];
 		half nh = saturate(dot(normal, halfDir));
 		half spec = NDFBlinnPhong(nh, PercRoughnessToSpecPower(roughness));
 	/// ELIF SPEC_PBR_GGX
 		//Specular: GGX
-		half3 halfDir = SpecSafeNormalize(lightDir + viewDir);
 		half roughness = [[VALUE:Specular Roughness PBR]]*[[VALUE:Specular Roughness PBR]];
 		half nh = saturate(dot(normal, halfDir));
 		half spec = GGX(nh, saturate(roughness));
@@ -294,8 +286,7 @@ sngl	lbl="Make Optional"			kw=SPECULAR_SHADER_FEATURE															needs=SPECUL
 		spec *= surfaceReduction;
 	/// ELSE
 		//Blinn-Phong Specular
-		half3 h = normalize(lightDir + viewDir);
-		float ndh = max(0, dot (normal, h));
+		float ndh = max(0, dot (normal, halfDir));
 		/// IF SPECULAR_RAMP
 		float3 spec = tex2D(_SpecularRamp, (ndh*ndh).xx).rgb;
 		/// ELIF SPECULAR_TOON
@@ -309,12 +300,16 @@ sngl	lbl="Make Optional"			kw=SPECULAR_SHADER_FEATURE															needs=SPECUL
 		spec *= ndl;
 	///
 	/// IF SPECULAR_NO_ATTEN
-		/// IF SPECULAR_ANISOTROPIC_HAIR
+		/// IF URP
+		half specShadowAtten = saturate(light.shadowAttenuation * ndl + [[VALUE:Specular Shadow Attenuation]]) * light.distanceAttenuation;
+		/// ELSE
 		half specShadowAtten = saturate(atten * ndl + [[VALUE:Specular Shadow Attenuation]]);
+		///
+		/// IF SPECULAR_ANISOTROPIC_HAIR
 		specColor1 *= specShadowAtten;
 		specColor2 *= specShadowAtten;
 		/// ELSE
-		spec *= saturate(atten * ndl + [[VALUE:Specular Shadow Attenuation]]);
+		spec *= specShadowAtten;
 		///
 	/// ELSE
 		/// IF SPECULAR_ANISOTROPIC_HAIR

@@ -2,7 +2,7 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!21 &2100000
 Material:
-  serializedVersion: 6
+  serializedVersion: 8
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -10,15 +10,27 @@ Material:
   m_Name: Robot Hybrid Outline Lit
   m_Shader: {fileID: -6465566751694194690, guid: df5bb027d94a6c44bb32b3c31ec1303f,
     type: 3}
-  m_ShaderKeywords: TCP2_OUTLINE_LIGHTING_MAIN TCP2_OUTLINE_MIN_SIZE TCP2_OUTLINE_TEXTURED_VERTEX
-    TCP2_RAMP_BANDS_CRISP TCP2_RIM_LIGHTING TCP2_RIM_LIGHTING_LIGHTMASK TCP2_SHADOW_LIGHT_COLOR
-    TCP2_SPECULAR_CRISP TCP2_TANGENT_AS_NORMALS TCP2_UV_NORMALS_FULL
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - TCP2_OUTLINE_LIGHTING_MAIN
+  - TCP2_OUTLINE_MIN_SIZE
+  - TCP2_OUTLINE_TEXTURED_VERTEX
+  - TCP2_RAMP_BANDS_CRISP
+  - TCP2_RIM_LIGHTING
+  - TCP2_RIM_LIGHTING_LIGHTMASK
+  - TCP2_SHADOW_LIGHT_COLOR
+  - TCP2_SPECULAR_CRISP
+  - TCP2_TANGENT_AS_NORMALS
+  - TCP2_UV_NORMALS_FULL
+  m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses: []
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -86,6 +98,7 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
     - _BumpScale: 0.15
     - _Cull: 2
@@ -168,3 +181,4 @@ Material:
     - _RimColor: {r: 1.6, g: 1.6, b: 1.6, a: 0.5}
     - _SColor: {r: 0.004524946, g: 0, b: 0.5, a: 1}
     - _SpecularColor: {r: 2, g: 2, b: 2, a: 1}
+  m_BuildTextureStacks: []

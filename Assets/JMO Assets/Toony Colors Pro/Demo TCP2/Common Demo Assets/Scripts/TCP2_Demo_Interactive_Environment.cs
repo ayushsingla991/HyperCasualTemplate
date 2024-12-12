@@ -22,7 +22,12 @@ namespace ToonyColorsPro
 
 				this.gameObject.SetActive(true);
 				RenderSettings.skybox = this.skybox;
-				RenderSettings.customReflection = (Cubemap)this.skybox.GetTexture("_Tex");
+#if UNITY_2022_1_OR_NEWER
+				RenderSettings.customReflectionTexture =
+#else
+				RenderSettings.customReflection =
+#endif
+					(Cubemap)this.skybox.GetTexture("_Tex");
 
 				if (Application.isPlaying)
 				{

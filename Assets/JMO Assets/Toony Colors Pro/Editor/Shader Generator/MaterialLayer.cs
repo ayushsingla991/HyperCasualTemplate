@@ -13,10 +13,14 @@ namespace ToonyColorsPro
         [Serialization.SerializeAs("ml")]
         public class MaterialLayer
         {
-            internal enum BlendType
+            public enum BlendType
             {
-                LinearInterpolation,
-                NormalMap
+                LinearInterpolation = 0,
+                // NormalMap,
+                Add,
+                Multiply,
+                MultiplyDouble,
+                Custom = 255
             }
             
             [Serialization.SerializeAs("uid")] public readonly string uid;
