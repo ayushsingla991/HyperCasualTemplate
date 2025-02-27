@@ -43,6 +43,8 @@ namespace FM.Template {
                         GameManager.Restart();
                     });
                 });
+            } else {
+                GameManager.Restart();
             }
         }
 

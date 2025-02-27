@@ -17,5 +17,14 @@ namespace FM.Template {
             public static string Coins = "Coins"; // FilePrefs
         }
 
+        public static bool ColorCompare(Color32 color1, Color32 color2) {
+            return color1.r == color2.r && color1.g == color2.g && color1.b == color2.b;
+        }
+
+        public static Vector3 ParseVector3(string input) {
+            string[] values = input.Split(',');
+            return new Vector3(float.Parse(values[0]), float.Parse(values[1]), float.Parse(values[2]));
+        }
+
     }
 }
