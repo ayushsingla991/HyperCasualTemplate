@@ -211,10 +211,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d8fae360817d741998998e9ef5081ca7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  canvas: {fileID: 673944199}
-  canvasRect: {fileID: 673944200}
-  canvasScaler: {fileID: 673944198}
-  finger: {fileID: 956105242}
+  canvas: {fileID: 589925909}
+  canvasRect: {fileID: 589925906}
+  canvasScaler: {fileID: 589925908}
+  finger: {fileID: 589925906}
 --- !u!1 &125570326
 GameObject:
   m_ObjectHideFlags: 0
@@ -2695,6 +2695,7 @@ MonoBehaviour:
   - {fileID: 673944196}
   showOnRecording:
   - {fileID: 589925905}
+  - {fileID: 81147474}
   recording: 0
 --- !u!1 &812125148
 GameObject:

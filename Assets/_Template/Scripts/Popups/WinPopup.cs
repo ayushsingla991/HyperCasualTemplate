@@ -15,8 +15,11 @@ namespace FM.Template {
 
         [SerializeField] float delay;
 
+        bool continueClicked;
+
         void Awake() {
             instance = this;
+            continueClicked = false;
         }
 
         void Start() {
@@ -36,6 +39,10 @@ namespace FM.Template {
         }
 
         public void Continue() {
+            if (continueClicked) {
+                return;
+            }
+            continueClicked = true;
             if (CoinsManager.CoinsToAdd > 0) {
                 CoinAnimator.Animate(coinImg, coinHeaderImg, () => {
                     CoinsManager.Add(CoinsManager.CoinsToAdd);
