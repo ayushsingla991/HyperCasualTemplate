@@ -30,14 +30,9 @@ namespace FM.Template {
         [SerializeField] GameObject goalUIPrefab;
         [SerializeField] RectTransform goalsBG;
         [SerializeField] RectTransform goalsContainer;
-        [SerializeField] Animator combo;
-        [SerializeField] Animator perfect;
         [SerializeField] ProgressBar goalBar;
 
         [SerializeField] Image[] comboCountImages;
-        int comboCount;
-
-        public static bool ComboActive;
 
         int totalCount;
 
@@ -45,9 +40,7 @@ namespace FM.Template {
             instance = this;
             Sprite[] sprites = Resources.LoadAll<Sprite>("Goal/");
             goals = sprites.ToDictionary(x => x.name, x => new Goal(x.name, x));
-            comboCount = 0;
             totalCount = 0;
-            ComboActive = false;
         }
 
         public static void SetGoalSize(float size) {
@@ -86,14 +79,6 @@ namespace FM.Template {
 
         }
 
-        public static void DoneCount(int count) {
-            if (count >= 10) {
-                instance.perfect.gameObject.SetActive(true);
-                instance.perfect.enabled = true;
-                Sound.PlaySound("combo", false);
-            }
-        }
-
         public static void Done(string color, int count) {
             instance.totalCount += count;
             instance.goalBar.text = instance.totalCount + "/" + instance.goalBar.maxValue;
@@ -119,29 +104,6 @@ namespace FM.Template {
                 GameManager.GameWon();
             }
             Taptic.Success();
-        }
-
-        public static void AddCombo() {
-            instance.comboCount++;
-            if (ComboActive) {
-                return;
-            }
-            if (instance.comboCount >= 2) {
-                ComboActive = true;
-                int comboIndex = instance.comboCount - 2;
-                if (comboIndex > instance.comboCountImages.Length - 1) {
-                    comboIndex = instance.comboCountImages.Length - 1;
-                }
-                instance.combo.gameObject.SetActive(true);
-                instance.combo.enabled = true;
-                instance.comboCountImages[comboIndex].gameObject.SetActive(true);
-                Taptic.Success();
-                Sound.PlaySound("combo", false);
-            }
-        }
-
-        public static void ResetCombo() {
-            instance.comboCount = 0;
         }
 
     }

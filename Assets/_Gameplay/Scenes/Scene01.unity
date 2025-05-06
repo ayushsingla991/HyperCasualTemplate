@@ -214,7 +214,7 @@ MonoBehaviour:
   canvas: {fileID: 589925909}
   canvasRect: {fileID: 589925906}
   canvasScaler: {fileID: 589925908}
-  finger: {fileID: 589925906}
+  finger: {fileID: 956105242}
 --- !u!1 &125570326
 GameObject:
   m_ObjectHideFlags: 0
