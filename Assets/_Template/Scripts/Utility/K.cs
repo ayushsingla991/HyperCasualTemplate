@@ -23,7 +23,7 @@ namespace FM.Template {
 
         public static Vector3 ParseVector3(string input) {
             string[] values = input.Split(',');
-            return new Vector3(float.Parse(values[0]), float.Parse(values[1]), float.Parse(values[2]));
+            return new Vector3(float.Parse(values[0], System.Globalization.CultureInfo.InvariantCulture), float.Parse(values[1], System.Globalization.CultureInfo.InvariantCulture), float.Parse(values[2], System.Globalization.CultureInfo.InvariantCulture));
         }
 
     }
